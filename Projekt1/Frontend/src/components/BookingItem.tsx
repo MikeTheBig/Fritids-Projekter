@@ -1,18 +1,22 @@
 interface Booking {
   bookingId: number;
   customerName: string;
+  customerEmail: string;
   startDate: string;
+  endDate: string;
+  showId: number;
 }
 
-interface BookingItemProps {
-  booking: Booking;
-}
 
-function BookingItem({ booking }: BookingItemProps) {
+function BookingItem({ booking }: { booking: Booking }) {
   return (
-    <li className="p-4 border rounded shadow hover:bg-gray-100">
-      <strong>{booking.customerName}</strong> -{" "}
-      {new Date(booking.startDate).toLocaleString()}
+    <li className="border p-4 rounded">
+      <p><strong>Booking ID:</strong> {booking.bookingId}</p>
+      <p><strong>Customer Name:</strong> {booking.customerName}</p>
+      <p><strong>Email:</strong> {booking.customerEmail}</p>
+      <p><strong>Start Date:</strong> {new Date(booking.startDate).toLocaleString()}</p>
+      <p><strong>End Date:</strong> {new Date(booking.endDate).toLocaleString()}</p>
+      <p><strong>Show ID:</strong> {booking.showId}</p>
     </li>
   );
 }
