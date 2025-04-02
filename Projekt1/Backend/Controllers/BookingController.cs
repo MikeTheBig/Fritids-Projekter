@@ -25,19 +25,29 @@ public class BookingController : ControllerBase
 
     }
 
-        [HttpPost]
-    public async Task<ActionResult<Booking>> CreateBooking([FromBody] Booking booking)
-    {
-        if (!ModelState.IsValid)
+            [HttpPost]
+        public async Task<IActionResult> CreateBooking([FromBody] Booking booking)
         {
-            return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+        
+            // Fetch the User entity using the UserId
+            var user = await _context.Users.FindAsync(booking.UserId);
+            if (user == null)
+            {
+                return BadRequest(new { errors = new { User = new[] { "Invalid UserId." } } });
+            }
+        
+            // Associate the User entity with the Booking
+            booking.User = user;
+        
+            _context.Bookings.Add(booking);
+            await _context.SaveChangesAsync();
+        
+            return CreatedAtAction(nameof(GetBooking), new { id = booking.BookingId }, booking);
         }
-    
-        _context.Bookings.Add(booking);
-        await _context.SaveChangesAsync();
-    
-        return CreatedAtAction(nameof(GetBooking), new { id = booking.BookingId }, booking);
-    }
 
 
 [HttpGet("{id}")]

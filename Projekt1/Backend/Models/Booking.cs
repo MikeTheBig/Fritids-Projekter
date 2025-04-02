@@ -4,7 +4,7 @@ namespace Backend.Models
     {
         public int BookingId { get; set; }
         public int UserId { get; set; }
-        public User User { get; set; } = null!;
+        public User? User { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string CustomerName { get; set; } = null!;

@@ -17,7 +17,7 @@ namespace Backend.Controllers
             _configuration = configuration;
         }
 
-        [HttpPost("login")]
+[HttpPost("login")]
 public IActionResult Login([FromBody] LoginRequest request)
 {
     // Dummy brugerautentifikation (udskift med din egen logik)
