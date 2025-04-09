@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -101,5 +103,45 @@ public async Task<IActionResult> DeleteBooking(int id)
     _context.Bookings.Remove(booking);
     await _context.SaveChangesAsync();
     return NoContent();
+}
+
+[HttpGet("user")]
+[Authorize]
+public async Task<IActionResult> GetUserBookings()
+{
+    // Log all claims for debugging
+    var claims = User.Claims.Select(c => new { c.Type, c.Value });
+    foreach (var claim in claims)
+    {
+        Console.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
+    }
+
+    // Find the correct nameidentifier claim with a numeric value
+    var userIdClaim = User.Claims
+        .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier && int.TryParse(c.Value, out _));
+
+    if (userIdClaim == null)
+    {
+        Console.WriteLine("Numeric User ID not found in token");
+        return Unauthorized();
+    }
+
+    var userId = userIdClaim.Value;
+
+    Console.WriteLine($"User ID from token: {userId}");
+
+    if (!int.TryParse(userId, out var numericUserId))
+    {
+        Console.WriteLine($"Invalid User ID: {userId}");
+        return BadRequest(new { errors = new { id = new[] { $"The value '{userId}' is not valid." } } });
+    }
+
+    Console.WriteLine($"Parsed User ID: {numericUserId}");
+
+    var bookings = await _context.Bookings
+        .Where(b => b.UserId == numericUserId)
+        .ToListAsync();
+
+    return Ok(bookings);
 }
 }

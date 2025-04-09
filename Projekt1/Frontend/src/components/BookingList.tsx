@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import axiosInstance from "../axiosInstance";
+import axios from "axios";
 
 interface Booking {
 	bookingId: number;
@@ -11,14 +11,23 @@ interface Booking {
 }
 
 function BookingList() {
+	const token = localStorage.getItem("token");
+
 	const {
 		data: bookings,
 		isLoading,
 		error,
 	} = useQuery<Booking[]>({
-		queryKey: ["bookings"],
+		queryKey: ["userBookings"],
 		queryFn: async () => {
-			const response = await axiosInstance.get("/Booking");
+			const response = await axios.get(
+				"http://localhost:5210/api/Booking/user",
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
 			return response.data;
 		},
 	});
@@ -26,7 +35,7 @@ function BookingList() {
 	if (isLoading) return <p className="text-blue-500">Loading bookings...</p>;
 	if (error instanceof Error)
 		return <p className="text-red-500">Error: {error.message}</p>;
-	if (bookings?.length === 0) return <p>No bookings available.</p>;
+	if (!bookings || bookings.length === 0) return <p>No bookings found.</p>;
 
 	return (
 		<div className="bg-white shadow-md rounded-lg p-6 max-w-4xl mx-auto mt-8">

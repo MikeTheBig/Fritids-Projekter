@@ -9,10 +9,23 @@ export async function fetchShows() {
 }
 
 export async function fetchBookings() {
-  const response = await fetch(`${API_BASE_URL}/Booking`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch bookings");
+  const token = localStorage.getItem("jwtToken"); // Retrieve the token from local storage
+  if (!token) {
+    throw new Error("User is not authenticated");
   }
+
+  const response = await fetch("http://localhost:5210/api/Booking/user", {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`, // Include the token in the Authorization header
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch bookings: ${response.statusText}`);
+  }
+
   return response.json();
 }
 
